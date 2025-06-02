@@ -15,9 +15,9 @@ public class GemMove : NghiaMono
     {
         if (this.gemCtr != null) return;
         this.gemCtr = transform.parent.GetComponent<GemCtr>();
-        Debug.Log(transform.name + " :LoadGemCtr", gameObject);
+       // Debug.Log(transform.name + " :LoadGemCtr", gameObject);
     }
-/*    public bool IsMoving; 
+    public bool IsMoving; 
     
 
     public virtual void MoveToTarget(Vector2 targetpos)
@@ -43,5 +43,5 @@ public class GemMove : NghiaMono
         gemCtr.transform.position = targetpos;
         IsMoving = false;
     }
-    */
+    
 }

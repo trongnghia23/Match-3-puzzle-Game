@@ -20,6 +20,7 @@ public class Gemboard : NghiaMono
     [SerializeField] GemBoardCtr gemBoardCtr;
 
     public List<GameObject> GemtoDestroy = new();
+    public List<GameObject> BomtoDestroy = new();
     
     public int width = 6;
     public int height = 8;
@@ -33,7 +34,7 @@ public class Gemboard : NghiaMono
 
     public ArrayLayout arrayLayout;
 
-   
+    
 
     protected override void Loadcomponents()
     {
@@ -48,23 +49,6 @@ public class Gemboard : NghiaMono
         base.Start();
         this.InitializaBoard();
     }
-
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-           Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
-            if (hit.collider != null && hit.collider.gameObject.GetComponent<GemCtr>())
-            {
-                if (gemBoardCtr.GemSwaper.IsProccessingMove) return;
-                GemCtr gemCtr = hit.collider.gameObject.GetComponent<GemCtr>();
-                Debug.Log("da cham vao" + gemCtr.name);
-                this.gemBoardCtr.GemSwaper.SelectGem(gemCtr);
-            }
-        }
-    } 
-    
     protected virtual void LoadGemSpawnCtrl()
     {
         if (this.gemSpawnCtr != null) return;
@@ -106,6 +90,7 @@ public class Gemboard : NghiaMono
                     gemBoardNode[x, y] = new Node(true, Gem.gameObject);
                     Gem.gameObject.SetActive(true);
                     GemtoDestroy.Add(Gem.gameObject);
+                    BomtoDestroy.Add(Gem.gameObject);
                 }
 
             }
@@ -130,15 +115,18 @@ public class Gemboard : NghiaMono
             foreach (GameObject gem in GemtoDestroy)
             {
                 Destroy(gem);
-                this.gemSpawnCtr.GemSpawner.Spawncountdown();
-               // GemDespawn despawner = gem.GetComponentInChildren<GemDespawn>();               
-                //despawner.DespawnObject();                  
+                this.gemSpawnCtr.GemSpawner.Spawncountdown();          
             }         
+            foreach (GameObject bom in BomtoDestroy)
+            {
+                Destroy(bom);
+            }
             GemtoDestroy.Clear();
+            BomtoDestroy.Clear();
         }
     }
    
-    
+   
 }
 
 

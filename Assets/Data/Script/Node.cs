@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-public class Node : NghiaMono
+public class Node
 {
     public bool isUsable;
    

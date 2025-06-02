@@ -58,7 +58,7 @@ public class GemCtr : NghiaMono
         yIndex = _y;
     }
 ///////////////////////////////
-public bool IsMoving; 
+/*public bool IsMoving; 
     
 
     public virtual void MoveToTarget(Vector2 _targetpos)
@@ -82,7 +82,7 @@ public bool IsMoving;
         }
         transform.position = _targetpos;
         IsMoving = false;
-    }
+    }*/
 }
 
 public enum GemType
@@ -90,6 +90,6 @@ public enum GemType
     Blue,
     Red,
     Green,
-    Yellow,
-    Orange
+    Gold,
+    Purple,
 } 

@@ -3,11 +3,13 @@ using UnityEngine;
 using System.Collections;
 public class GemSwaper : NghiaMono
 {
-    protected GemCtr SelectedGem;
+   [SerializeField] protected GemCtr SelectedGem;
+    
     [SerializeField] protected bool isProccessingMove;
     public bool IsProccessingMove => isProccessingMove;
     [SerializeField] protected GemBoardCtr gemboardCtr;
     [SerializeField] protected GemSpawnCtr gemSpawnCtr;
+    
     protected override void Loadcomponents()
     {
         base.Loadcomponents();
@@ -49,7 +51,7 @@ public class GemSwaper : NghiaMono
 
     }
 
-    protected virtual void SwapGem(GemCtr _currentGem, GemCtr _targetGem)
+    public virtual void SwapGem(GemCtr _currentGem, GemCtr _targetGem)
     {
         if (!IsAbleToSwap(_currentGem, _targetGem))
         {
@@ -58,6 +60,7 @@ public class GemSwaper : NghiaMono
         }
         Swap(_currentGem, _targetGem);
         isProccessingMove = true;
+        
 
         StartCoroutine(ProcessMatch(_currentGem, _targetGem));
     }
@@ -75,8 +78,9 @@ public class GemSwaper : NghiaMono
         _targetGem.xIndex = tempX;
         _targetGem.yIndex = tempY;  
 
-        _currentGem.MoveToTarget(gemboardCtr.Gemboard.gemBoardNode[_targetGem.xIndex, _targetGem.yIndex].Gem.transform.position);
-        _targetGem.MoveToTarget(gemboardCtr.Gemboard.gemBoardNode[_currentGem.xIndex, _currentGem.yIndex].Gem.transform.position);
+        _currentGem.GemMove.MoveToTarget(gemboardCtr.Gemboard.gemBoardNode[_targetGem.xIndex, _targetGem.yIndex].Gem.transform.position);
+        _targetGem.GemMove.MoveToTarget(gemboardCtr.Gemboard.gemBoardNode[_currentGem.xIndex, _currentGem.yIndex].Gem.transform.position);
+        
     }
 
     protected IEnumerator ProcessMatch(GemCtr _currentGem, GemCtr _targetGem)
@@ -91,8 +95,9 @@ public class GemSwaper : NghiaMono
             Swap(_currentGem, _targetGem);
         }
         isProccessingMove = false;
+        SelectedGem = null;
     }
-    protected virtual bool IsAbleToSwap(GemCtr _currentGem, GemCtr _targetGem)
+    public virtual bool IsAbleToSwap(GemCtr _currentGem, GemCtr _targetGem)
     {
         return Mathf.Abs(_currentGem.xIndex - _targetGem.xIndex) + Mathf.Abs(_currentGem.yIndex - _targetGem.yIndex) == 1;
     } 

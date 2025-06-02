@@ -2,7 +2,6 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using System;
 public class Boardchecker : NghiaMono
 {
     protected static Boardchecker instance;
@@ -96,10 +95,12 @@ public class Boardchecker : NghiaMono
                 List<GemCtr> EXconnectedgems = new();
                 checkDirection(gem, new Vector2Int(1, 0), EXconnectedgems);
                 checkDirection(gem, new Vector2Int(-1, 0), EXconnectedgems);
-                if (EXconnectedgems.Count >= 2)
+                if (EXconnectedgems.Count >= 3)
                 {
-                    Debug.Log("an ngang sieu cap" + gem.GemType);
+                    Debug.LogWarning("an ngang sieu cap" + gem.GemType);
                     EXconnectedgems.AddRange(_MachedResult.connectedgems);
+                    
+                  
                     return new MatchResult
                     {
                         connectedgems = EXconnectedgems,
@@ -120,10 +121,14 @@ public class Boardchecker : NghiaMono
                 List<GemCtr> EXconnectedgems = new();
                 checkDirection(gem, new Vector2Int(0, 1), EXconnectedgems);
                 checkDirection(gem, new Vector2Int(0, -1), EXconnectedgems);
-                if (EXconnectedgems.Count >= 2)
+                if (EXconnectedgems.Count >= 3)
                 {
-                    Debug.Log("an doc sieu cap" + gem.GemType);
+                    Debug.LogWarning("an doc sieu cap" + gem.GemType);
                     EXconnectedgems.AddRange(_MachedResult.connectedgems);
+                    
+                    // Spawn bomb at the center gem's position
+                   
+////////////////////////////
                     return new MatchResult
                     {
                         connectedgems = EXconnectedgems,
