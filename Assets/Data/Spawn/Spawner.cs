@@ -1,39 +1,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public abstract class spawner : NghiaMono
+public class spawner : NghiaMono
 {
     [SerializeField] protected Transform holder;
     [SerializeField] protected List<Transform> prefabs;
     [SerializeField] protected List<Transform> poolObjs;
-    [SerializeField] protected int spawncount = 0;
-    public int Spawncount => spawncount;
+    protected int spawnCount = 0;
+    public int Spawncount => spawnCount;
+
     protected override void Loadcomponents()
     {
+        base.Loadcomponents();
+        this.LoadHolder();
         this.LoadPrefabs();
-        this.LoadHodler();
     }
 
-    protected virtual void LoadHodler()
+    protected virtual void LoadHolder()
     {
         if (this.holder != null) return;
         this.holder = transform.Find("Holder");
-        Debug.Log(transform.name + ": LoadHodler", gameObject);
+        Debug.Log(transform.name + ": LoadHolder", gameObject);
     }
 
     protected virtual void LoadPrefabs()
     {
         if (this.prefabs.Count > 0) return;
-
         Transform prefabObj = transform.Find("Prefabs");
         foreach (Transform prefab in prefabObj)
         {
             this.prefabs.Add(prefab);
         }
-
         this.HidePrefabs();
-
         Debug.Log(transform.name + ": LoadPrefabs", gameObject);
     }
 
@@ -44,14 +42,32 @@ public abstract class spawner : NghiaMono
             prefab.gameObject.SetActive(false);
         }
     }
-    public virtual void Spawncountup()
-     {
-        this.spawncount++;
+
+    public virtual Transform RandomPrefab()
+    {
+        int rand = Random.Range(0, this.prefabs.Count);
+        return this.prefabs[rand];
     }
+
+    public virtual Transform Spawn(Transform prefab, Vector3 spawnPos, Quaternion rotation)
+    {
+        Transform newPrefab = this.GetObjectFromPool(prefab);
+        newPrefab.SetPositionAndRotation(spawnPos, rotation);
+        newPrefab.parent = this.holder;
+        this.spawnCount++;
+        return newPrefab;
+    }
+
+    public virtual void Spawncountup()
+    {
+        this.spawnCount++;
+    }
+
     public virtual void Spawncountdown()
     {
-        this.spawncount--;
+        this.spawnCount--;
     }
+
     public virtual Transform Spawn(string prefabName, Vector3 spawnPos, Quaternion rotation)
     {
         Transform prefab = this.GetPrefabByName(prefabName);
@@ -61,25 +77,14 @@ public abstract class spawner : NghiaMono
             return null;
         }
 
-
         return this.Spawn(prefab, spawnPos, rotation);
     }
-    public virtual Transform Spawn(Transform prefab, Vector3 spawnPos, Quaternion rotation)
-    {
-        Transform newPrefab = this.GetObjectFromPool(prefab);
-        newPrefab.SetPositionAndRotation(spawnPos, rotation);
 
-        newPrefab.parent = this.holder;
-        this.spawncount++;
-        return newPrefab;
-
-
-    }
     public virtual void Despawn(Transform obj)
     {
         this.poolObjs.Add(obj);
         obj.gameObject.SetActive(false);
-        this.spawncount--;
+        this.spawnCount--;
     }
 
     protected virtual Transform GetObjectFromPool(Transform prefab)
@@ -98,7 +103,6 @@ public abstract class spawner : NghiaMono
         return newPrefab;
     }
 
-
     public virtual Transform GetPrefabByName(string prefabName)
     {
         foreach (Transform prefab in this.prefabs)
@@ -107,10 +111,5 @@ public abstract class spawner : NghiaMono
         }
 
         return null;
-    }
-    public virtual Transform RandomPrefab()
-    {
-        int rand = Random.Range(0, this.prefabs.Count);
-        return this.prefabs[rand];
     }
 }

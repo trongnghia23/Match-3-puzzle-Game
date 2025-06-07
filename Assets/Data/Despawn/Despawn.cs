@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public  class Despawn : NghiaMono
+public abstract class Despawn : NghiaMono
 {
     protected virtual void FixedUpdate()
     {
@@ -19,9 +19,6 @@ public  class Despawn : NghiaMono
         Destroy(transform.parent.gameObject);
     }
 
-    public virtual bool CanDespawn()
-    {
-        return false;
-    }
+    public abstract bool CanDespawn();
 
 }

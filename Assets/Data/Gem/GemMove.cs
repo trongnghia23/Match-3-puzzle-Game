@@ -22,11 +22,11 @@ public class GemMove : NghiaMono
 
     public virtual void MoveToTarget(Vector2 targetpos)
     {
-       
+       GemSpawner.Instance.SpawnTimeUp();
         StartCoroutine(MoveCoroutine(targetpos));
     }
 
-    protected IEnumerator MoveCoroutine(Vector2 targetpos)
+    protected virtual IEnumerator MoveCoroutine(Vector2 targetpos)
     {
         IsMoving = true;
         float time = 0.2f;
@@ -42,6 +42,7 @@ public class GemMove : NghiaMono
         }
         gemCtr.transform.position = targetpos;
         IsMoving = false;
+        GemSpawner.Instance.SpawnTimeDown();
     }
     
 }

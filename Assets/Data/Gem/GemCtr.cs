@@ -57,6 +57,8 @@ public class GemCtr : NghiaMono
         xIndex = _x;
         yIndex = _y;
     }
+
+    
 ///////////////////////////////
 /*public bool IsMoving; 
     

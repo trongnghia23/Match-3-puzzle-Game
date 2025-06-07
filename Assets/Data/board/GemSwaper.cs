@@ -5,11 +5,12 @@ public class GemSwaper : NghiaMono
 {
    [SerializeField] protected GemCtr SelectedGem;
     
-    [SerializeField] protected bool isProccessingMove;
+    [SerializeField] public bool isProccessingMove;
     public bool IsProccessingMove => isProccessingMove;
     [SerializeField] protected GemBoardCtr gemboardCtr;
     [SerializeField] protected GemSpawnCtr gemSpawnCtr;
     
+
     protected override void Loadcomponents()
     {
         base.Loadcomponents();
@@ -30,20 +31,16 @@ public class GemSwaper : NghiaMono
     }
     public virtual void SelectGem(GemCtr _gemCtrl)
     {
-        if (isProccessingMove)
-        {
-            return;
-        }
-        if (this.SelectedGem == null)
+        if (this.SelectedGem == null && !isProccessingMove)
         {
             Debug.Log(_gemCtrl.name);
             this.SelectedGem = _gemCtrl;
         }
-        else if (this.SelectedGem == _gemCtrl)
+        else if (this.SelectedGem == _gemCtrl && !isProccessingMove)
         {
             this.SelectedGem = null;
         }
-        else if (SelectedGem != _gemCtrl)
+        else if (SelectedGem != _gemCtrl && !isProccessingMove)
         {
             SwapGem(SelectedGem, _gemCtrl);
             this.SelectedGem = null;
@@ -64,7 +61,7 @@ public class GemSwaper : NghiaMono
 
         StartCoroutine(ProcessMatch(_currentGem, _targetGem));
     }
-    protected virtual void Swap(GemCtr _currentGem, GemCtr _targetGem)
+    protected virtual void Swap(GemCtr _currentGem, GemCtr _targetGem )
     {
         
         Transform temp = gemboardCtr.Gemboard.gemBoardNode[_currentGem.xIndex, _currentGem.yIndex].Gem.transform;
@@ -93,8 +90,9 @@ public class GemSwaper : NghiaMono
         else
         {
             Swap(_currentGem, _targetGem);
+            isProccessingMove = false;
         }
-        isProccessingMove = false;
+        
         SelectedGem = null;
     }
     public virtual bool IsAbleToSwap(GemCtr _currentGem, GemCtr _targetGem)

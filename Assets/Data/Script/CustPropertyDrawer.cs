@@ -12,16 +12,16 @@ public class CustPropertyDrawer : PropertyDrawer
         newpos.y += 144f;
         SerializedProperty data = property.FindPropertyRelative("rows");
         //data.row[0][]
-        if (data.arraySize != 8 )
-            data.arraySize = 8;
-        for (int i = 0; i < 8 ; i++)
+        if (data.arraySize != 9 )
+            data.arraySize = 9;
+        for (int i = 0; i < 9 ; i++)
         {
             SerializedProperty row = data.GetArrayElementAtIndex(i).FindPropertyRelative("row");
             newpos.height = 18;
-            if (row.arraySize != 6)
-                row.arraySize = 6;
-            newpos.width = position.width / 6;
-            for (int j = 0; j < 6 ; j++)
+            if (row.arraySize != 7)
+                row.arraySize = 7;
+            newpos.width = position.width / 7;
+            for (int j = 0; j < 7 ; j++)
             {
                 EditorGUI.PropertyField(newpos, row.GetArrayElementAtIndex(j), GUIContent.none);
                 newpos.x += newpos.width;

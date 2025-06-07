@@ -11,5 +11,5 @@ public class ArrayLayout
         public bool[] row;
 
     }
-    public rowdata[] rows = new rowdata[8];
+    public rowdata[] rows = new rowdata[14];
 }
