@@ -98,15 +98,11 @@ public class Boardchecker : NghiaMono
         if (DeadLockChecker.Instance.IsDeadLock())
         {
             Debug.LogWarning("Is Dead Lock");
-
-            // Đánh dấu trạng thái đang xáo
             yield return StartCoroutine(gemboardCtr.Gemboard.ShuffleBoard());
-
-            // Chờ xáo xong trước khi tiếp tục (có thể bạn cần sửa ShuffleBoard để yield return tương tự)
-            yield break;  // Kết thúc coroutine, chờ lần sau shuffle xong sẽ tiếp tục
+                yield break;
         }
 
-        if (checkBoard())
+        if  (checkBoard())
         {
             
 
@@ -116,9 +112,9 @@ public class Boardchecker : NghiaMono
             yield break;
         }
     }
-
+        gemboardCtr.GameManagerCtr.ScoreManager.IncreaseScore(gemboardCtr.GameManagerCtr.ScoreManager.basePieceValue * gemboardCtr.GameManagerCtr.ScoreManager.StreakValue);
+        gemboardCtr.GameManagerCtr.ScoreManager.StreakValue = 0;
     gemboardCtr.GemSwaper.isProccessingMove = false;
-        
     }
 
     protected MatchResult SuperMached(MatchResult _MachedResult)
