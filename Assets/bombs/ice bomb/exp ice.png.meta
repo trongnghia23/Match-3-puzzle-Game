@@ -216,6 +216,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -1134,7 +1147,48 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      exp ice_0: 7347916614196167323
+      exp ice_1: -5576088527577075856
+      exp ice_10: 8397842768162949056
+      exp ice_11: 5885330037534051241
+      exp ice_12: -4453240516645406458
+      exp ice_13: -819832946822489127
+      exp ice_14: -7091779369420678248
+      exp ice_15: 1856738650917598319
+      exp ice_16: 8981252451511904462
+      exp ice_17: -3135134565858502126
+      exp ice_18: 1344259628728853930
+      exp ice_19: 8933155134935480584
+      exp ice_2: -2251774563024335081
+      exp ice_20: -7014596260109461986
+      exp ice_21: 5911333523844863672
+      exp ice_22: 3194287385617637927
+      exp ice_23: 1034995625763833616
+      exp ice_24: -7196317948855550119
+      exp ice_25: 5023773551424083561
+      exp ice_26: 4638135510504524368
+      exp ice_27: 3936769178066575019
+      exp ice_28: -4194265466807580754
+      exp ice_29: -7658834117800234910
+      exp ice_3: 7792848784528395346
+      exp ice_30: 8901983924535602726
+      exp ice_31: 6751189583516020263
+      exp ice_32: -2348419274720364643
+      exp ice_33: -3469862517953955483
+      exp ice_34: 1836040347000748782
+      exp ice_35: -3731803829113929853
+      exp ice_36: -2392076219894298271
+      exp ice_37: 7183834094137002105
+      exp ice_38: -8014297749382188307
+      exp ice_39: 8096011820724891810
+      exp ice_4: -1574007081235788986
+      exp ice_40: 3682453747095853890
+      exp ice_5: -8580109724643516728
+      exp ice_6: -6879324955347284949
+      exp ice_7: -699354080085052048
+      exp ice_8: -3747553182225961150
+      exp ice_9: -4942799839704336005
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

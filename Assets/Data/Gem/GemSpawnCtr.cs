@@ -2,12 +2,22 @@ using UnityEngine;
 
 public class GemSpawnCtr : NghiaMono
 {
+    protected static GemSpawnCtr instance;
+    public static GemSpawnCtr Instance => instance;
 
     [SerializeField] protected GemSpawner gemSpawner;
     public GemSpawner GemSpawner { get => gemSpawner; }
     [SerializeField] protected Transform holder;
     public Transform Holder => holder;
-   
+    protected override void Awake()
+    {
+        base.Awake();
+        if (instance != null)
+        {
+            Debug.LogError("Only one GemSpawnCtr allowed");
+        }
+        instance = this;
+    }
     protected override void Loadcomponents()
     {
         base.Loadcomponents();

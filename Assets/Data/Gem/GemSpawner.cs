@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using Unity.Mathematics;
@@ -39,65 +39,71 @@ protected override void Loadcomponents()
         this.gemboardCtr = Transform.FindAnyObjectByType<GemBoardCtr>();
          Debug.Log(transform.name + " :LoadGemboardCtr", gameObject);
     }
-   public virtual IEnumerator RemoveAndRefillGem(List<GemCtr> GemtoRemove)
+    public virtual IEnumerator RemoveAndRefillGem(List<GemCtr> GemtoRemove)
     {
-        
+
         foreach (GemCtr gem in GemtoRemove)
-        {   
+        {
             int _xIndex = gem.xIndex;
             int _yIndex = gem.yIndex;
             gem.GemDespawn.DespawnObject();
-            this.Spawncountdown();
-            gemboardCtr.Gemboard.gemBoardNode[_xIndex,_yIndex] = new Node(true,null);
-           
-         
+            gemboardCtr.GameManagerCtr.SoundManager.PlayDespawNoise();
+            var node = gemboardCtr.Gemboard.gemBoardNode[_xIndex, _yIndex];
+            if (node.Gem != null)
+            {
+                gemboardCtr.GameManagerCtr.GoalManager.CompareGoal(node.Gem.tag);
+                gemboardCtr.GameManagerCtr.GoalManager.updateGoal();
+            }
+            gemboardCtr.Gemboard.gemBoardNode[_xIndex, _yIndex] = new Node(true, null);
+
+
         }
-         yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.05f);
         for (int x = 0; x < gemboardCtr.Gemboard.width; x++)
         {
             for (int y = 0; y < gemboardCtr.Gemboard.height; y++)
             {
-                if (gemboardCtr.Gemboard.gemBoardNode[x,y].Gem == null)
+                if (gemboardCtr.Gemboard.gemBoardNode[x, y].Gem == null)
                 {
-                   
 
-                  //  Debug.Log("vi tri X:"+ x + "Y:" + y +"dang trong");
-                    RefillGem(x,y);
+
+                    //  Debug.Log("vi tri X:"+ x + "Y:" + y +"dang trong");
+                    RefillGem(x, y);
                 }
             }
         }
     }
-   
+
     protected virtual void RefillGem(int x, int y)
-    {  
+    {
         int yOffSet = 1;
-        
-        while (y + yOffSet < gemboardCtr.Gemboard.height && gemboardCtr.Gemboard.gemBoardNode[x,y + yOffSet].Gem == null)
+
+        while (y + yOffSet < gemboardCtr.Gemboard.height && gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem == null)
         {
             yOffSet++;
-        }   
-           
-        if (y + yOffSet < gemboardCtr.Gemboard.height && gemboardCtr.Gemboard.gemBoardNode[x,y + yOffSet].Gem != null)
+        }
+
+        if (y + yOffSet < gemboardCtr.Gemboard.height && gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem != null)
         {
             if (gemboardCtr.Gemboard.arrayLayout.rows[y].row[x])
-                {
-                    gemboardCtr.Gemboard.gemBoardNode[x, y] = new Node(false, null);
-                 
-                }
-                else
-                {
-                    GameObject gemObject = gemboardCtr.Gemboard.gemBoardNode[x,y + yOffSet].Gem;
-                    GemCtr gemCtr = gemObject.GetComponent<GemCtr>();
-                    Vector3 TargetPos = new Vector3(x - gemboardCtr.Gemboard.spacingX, y - gemboardCtr.Gemboard.spacingY, gemObject.transform.position.z);
-                    
-            gemCtr.GemMove.MoveToTarget(TargetPos);
-            gemCtr.SetIndicies(x, y);
+            {
+                gemboardCtr.Gemboard.gemBoardNode[x, y] = new Node(false, null);
 
-            gemboardCtr.Gemboard.gemBoardNode[x, y] = gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet];
-            gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet] = new Node(true, null);
-          
-                }
-        } 
+            }
+            else
+            {
+                GameObject gemObject = gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem;
+                GemCtr gemCtr = gemObject.GetComponent<GemCtr>();
+                Vector3 TargetPos = new Vector3(x - gemboardCtr.Gemboard.spacingX, y - gemboardCtr.Gemboard.spacingY, gemObject.transform.position.z);
+
+                gemCtr.GemMove.MoveToTarget(TargetPos);
+                gemCtr.SetIndicies(x, y);
+
+                gemboardCtr.Gemboard.gemBoardNode[x, y] = gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet];
+                gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet] = new Node(true, null);
+
+            }
+        }
         if (y + yOffSet == gemboardCtr.Gemboard.height)
         {
             SpawnGemOnTop(x, y);
@@ -105,9 +111,9 @@ protected override void Loadcomponents()
     }
 
     protected virtual void SpawnGemOnTop(int x, int y)
-    {     
+    {
         int Index = FindIndexOfLowestGem(x);
-        
+
         int LocationToMoveTo = gemboardCtr.Gemboard.height - Index;
 
         if (gemboardCtr.Gemboard.arrayLayout.rows[y].row[x])
@@ -125,17 +131,17 @@ protected override void Loadcomponents()
             Vector3 targetPos = new Vector3(NewGem.transform.position.x, NewGem.transform.position.y - LocationToMoveTo, NewGem.transform.position.z);
             NewGem.GetComponent<GemCtr>().GemMove.MoveToTarget(targetPos);
         }
-      
-        
+
+
     }
 
     protected virtual int FindIndexOfLowestGem(int x)
     {
-        int LowestNull = 99; 
+        int LowestNull = 99;
         for (int y = gemboardCtr.Gemboard.height - 1; y >= 0; y--)
         {
-            if (gemboardCtr.Gemboard.gemBoardNode[x,y].Gem == null)
-            {  
+            if (gemboardCtr.Gemboard.gemBoardNode[x, y].Gem == null)
+            {
                 if (gemboardCtr.Gemboard.arrayLayout.rows[y].row[x])
                 {
                     gemboardCtr.Gemboard.gemBoardNode[x, y] = new Node(false, null);

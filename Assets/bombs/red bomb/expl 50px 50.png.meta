@@ -189,6 +189,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -909,7 +922,39 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      expl 50px 50_0: -6695066667876501483
+      expl 50px 50_1: -3202993836855855621
+      expl 50px 50_10: -1573372381415100676
+      expl 50px 50_11: -5524785560578582045
+      expl 50px 50_12: -1785574080999817641
+      expl 50px 50_13: -5878444517667349710
+      expl 50px 50_14: 758181481799564505
+      expl 50px 50_15: 8396746063886297711
+      expl 50px 50_16: 7423816993993531254
+      expl 50px 50_17: -8876897326091152602
+      expl 50px 50_18: 7644838437691550792
+      expl 50px 50_19: 5430697093771292850
+      expl 50px 50_2: -730069193714295883
+      expl 50px 50_20: 1630415359777467139
+      expl 50px 50_21: -4581295585914031825
+      expl 50px 50_22: 8397029484983096498
+      expl 50px 50_23: -2165773635253165387
+      expl 50px 50_24: -7084815230622857476
+      expl 50px 50_25: -1576621048570163296
+      expl 50px 50_26: 6305480924589012710
+      expl 50px 50_27: -3199841316415411623
+      expl 50px 50_28: 1714684456936381026
+      expl 50px 50_29: 3021003412328485930
+      expl 50px 50_3: -1678274938576048260
+      expl 50px 50_30: 697923360739640146
+      expl 50px 50_31: -3761121336684991265
+      expl 50px 50_4: -2717105520900257873
+      expl 50px 50_5: -367591092406241346
+      expl 50px 50_6: -7256282182574546450
+      expl 50px 50_7: -958368214974525000
+      expl 50px 50_8: -582784412349787591
+      expl 50px 50_9: -7648553988278005154
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

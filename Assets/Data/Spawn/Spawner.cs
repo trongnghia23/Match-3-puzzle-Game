@@ -6,9 +6,9 @@ public class spawner : NghiaMono
     [SerializeField] protected Transform holder;
     [SerializeField] protected List<Transform> prefabs;
     [SerializeField] protected List<Transform> poolObjs;
-    protected int spawnCount = 0;
+    [SerializeField]protected int spawnCount = 0;
     public int Spawncount => spawnCount;
-
+    
     protected override void Loadcomponents()
     {
         base.Loadcomponents();
@@ -48,16 +48,6 @@ public class spawner : NghiaMono
         int rand = Random.Range(0, this.prefabs.Count);
         return this.prefabs[rand];
     }
-
-    public virtual Transform Spawn(Transform prefab, Vector3 spawnPos, Quaternion rotation)
-    {
-        Transform newPrefab = this.GetObjectFromPool(prefab);
-        newPrefab.SetPositionAndRotation(spawnPos, rotation);
-        newPrefab.parent = this.holder;
-        this.spawnCount++;
-        return newPrefab;
-    }
-
     public virtual void Spawncountup()
     {
         this.spawnCount++;
@@ -68,6 +58,14 @@ public class spawner : NghiaMono
         this.spawnCount--;
     }
 
+    public virtual Transform Spawn(Transform prefab, Vector3 spawnPos, Quaternion rotation)
+    {
+        Transform newPrefab = this.GetObjectFromPool(prefab);
+        newPrefab.SetPositionAndRotation(spawnPos, rotation);
+        newPrefab.parent = this.holder;
+        this.spawnCount++;
+        return newPrefab;
+    }
     public virtual Transform Spawn(string prefabName, Vector3 spawnPos, Quaternion rotation)
     {
         Transform prefab = this.GetPrefabByName(prefabName);
@@ -89,11 +87,12 @@ public class spawner : NghiaMono
 
     protected virtual Transform GetObjectFromPool(Transform prefab)
     {
-        foreach (Transform poolObj in this.poolObjs)
+        for (int i = 0; i < poolObjs.Count; i++)
         {
-            if (poolObj.name == prefab.name)
+            Transform poolObj = poolObjs[i];
+            if (poolObj.name == prefab.name && !poolObj.gameObject.activeInHierarchy)
             {
-                this.poolObjs.Remove(poolObj);
+                poolObjs.RemoveAt(i);
                 return poolObj;
             }
         }

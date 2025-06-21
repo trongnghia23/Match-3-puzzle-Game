@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98b75b622358a6243a492feeef3fd409, type: 3}
+  m_Name: Level_1
+  m_EditorClassIdentifier: 
+  width: 4
+  height: 4
+  gemBoardLayout:
+    currentLevel: {fileID: 0}
+    rows:
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+  ScoreGoals: f4010000e8030000dc050000
+  Gametype:
+    Gametype: 1
+    CounterValue: 44
+  LevelGoals:
+  - NumberNeeded: 14
+    NumberCollected: 0
+    GoalsSprite: {fileID: 21300000, guid: 33aa346b401dcad4f9e24ea2be8fc3c8, type: 2}
+    MatchValue: Redgem
+  - NumberNeeded: 12
+    NumberCollected: 0
+    GoalsSprite: {fileID: 21300000, guid: 89c1cdcc32a827d41adcfd6c86eafcb2, type: 2}
+    MatchValue: Greengem

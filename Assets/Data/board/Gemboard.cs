@@ -7,34 +7,43 @@ public class Gemboard : NghiaMono
 {  
     protected static Gemboard instance;
     public static Gemboard Instance { get => instance; }
+ 
+    [SerializeField] GemSpawnCtr gemSpawnCtr;
+    [SerializeField] GemBoardCtr gemBoardCtr;
+    [SerializeField] protected Transform holder;
+    [Header("BoardSize")]
+    public int width;
+    public int height;
+    public float spacingX;
+    public float spacingY;
+    public GameObject BlankSpaces;
+    public List<GameObject> GemtoDestroy = new();
+    [Header("Layout")]
+    public Node[,] gemBoardNode;
+    public ArrayLayout arrayLayout;
+
+    public bool isInitializingBoard = false;
+    public bool isShuffling = false;
     protected override void Awake()
     {
         base.Awake();
         if (Gemboard.instance != null) Debug.LogError("only one Gemboard allow to exist");
         Gemboard.instance = this;
     }
-    [SerializeField] GemSpawnCtr gemSpawnCtr;
-    [SerializeField] GemBoardCtr gemBoardCtr;
 
-    public List<GameObject> GemtoDestroy = new();
-    public int width = 7;
-    public int height = 9;
-    public float spacingX;
-    public float spacingY;
-    public Node[,] gemBoardNode;
-    public ArrayLayout arrayLayout;
-    public bool isInitializingBoard = false;
-    public bool isShuffling = false;
     protected override void Loadcomponents()
     {
         base.Loadcomponents();
         this.LoadGemBoardCtrl();
         this.LoadGemSpawnCtrl();
+        this.LoadHolder();
     }
     protected override void Start()
     {
         base.Start();
         this.InitializaBoard();
+        gemBoardCtr.SetGameState(GemBoardCtr.GameState.Pause);
+
     }
     protected virtual void LoadGemSpawnCtrl()
     {
@@ -49,7 +58,13 @@ public class Gemboard : NghiaMono
         this.gemBoardCtr = GetComponent<GemBoardCtr>();
         Debug.Log(transform.name + " :LoadGemBoardCtrl", gameObject);
     }
-    public void InitializaBoard(int retry = 4)
+    protected virtual void LoadHolder()
+    {
+        if (this.holder != null) return;
+        this.holder = transform.Find("Holder");
+        Debug.Log(transform.name + ": LoadHolder", gameObject);
+    }
+    public void InitializaBoard()
     {
         if (isInitializingBoard) return;
         isInitializingBoard = true;
@@ -64,7 +79,8 @@ public class Gemboard : NghiaMono
             for (int x = 0; x < width; x++)
             {
                 Vector2 pos = new Vector2(x - spacingX, y - spacingY);
-                if (arrayLayout.rows[y].row[x])
+                if (arrayLayout != null && y < arrayLayout.rows.Length
+                && x < arrayLayout.rows[y].row.Length && arrayLayout.rows[y].row[x])
                 {
                     gemBoardNode[x, y] = new Node(false, null);
                  
@@ -73,34 +89,40 @@ public class Gemboard : NghiaMono
                 {
                     
                     Transform prefab = this.gemSpawnCtr.GemSpawner.RandomPrefab();
-                  
                     Transform Gem = this.gemSpawnCtr.GemSpawner.Spawn(prefab, pos, Quaternion.identity);
+                    GameObject BlankSpace = Instantiate(BlankSpaces, pos, Quaternion.identity);
+                    BlankSpace.transform.parent = this.holder;
                     Gem.GetComponent<GemCtr>().SetIndicies(x, y);
                     gemBoardNode[x, y] = new Node(true, Gem.gameObject);
                     Gem.gameObject.SetActive(true);
+                    BlankSpace.gameObject.SetActive(true);
                     GemtoDestroy.Add(Gem.gameObject);
+                    GemtoDestroy.Add(BlankSpace);
                 }
 
             }
         }
         isInitializingBoard = false;
        bool hasMatchingPairs = this.gemBoardCtr.Boardchecker.checkBoard();
-       bool isDeadLock = DeadLockChecker.Instance.IsDeadLock();
+       bool isDeadLock = this.gemBoardCtr.DeadLockChecker.IsDeadLock();
 
-if (retry > 0 && (hasMatchingPairs || isDeadLock))
+if (hasMatchingPairs || isDeadLock)
 {
     Debug.Log("Co cap giong nhau hoac deadlock - goi lai InitializaBoard");
-    this.InitializaBoard(retry - 1);
-}
-else if (isDeadLock)
-{
-    Debug.Log("Deadlock - shuffle board");
-    this.ShuffleBoard();
+            StartCoroutine(RetryInitializeBoard());
 }
 else
 {
-    Debug.Log("Khong con cap giong nhau va khong deadlock - khong goi lai InitializaBoard");
+    Debug.Log("Khong con cap giong nhau va khong deadlock");
+            FadePanelCtr fade = FindAnyObjectByType<FadePanelCtr>();
+            fade.Loading();
+            gemBoardCtr.Boardchecker.ResetState();
 }
+    }
+    private IEnumerator RetryInitializeBoard()
+    {
+        yield return new WaitForSeconds(0.1f);
+        InitializaBoard();
     }
     protected virtual void DestroyGem()
     {
@@ -110,12 +132,19 @@ else
             foreach (GameObject gem in GemtoDestroy)
             {
                 Destroy(gem);
-                this.gemSpawnCtr.GemSpawner.Spawncountdown();          
+                this.gemSpawnCtr.GemSpawner.Spawncountdown();
+               
             }         
             GemtoDestroy.Clear();
         }
     }
-public IEnumerator ShuffleBoard()
+    public Vector3 GetWorldPosFromXY(int x, int y)
+    {
+        float posX = x - spacingX;
+        float posY = y - spacingY;
+        return new Vector3(posX, posY, 0f);
+    }
+    public IEnumerator ShuffleBoard()
 {
     if (isShuffling) yield break;
     isShuffling = true;
@@ -125,7 +154,6 @@ public IEnumerator ShuffleBoard()
     while (retry > 0)
     {
         gemBoardCtr.GemSwaper.isProccessingMove = true;
-        // Bước 1: Gom tất cả gem hiện có
         List<GameObject> allGems = new();
         for (int x = 0; x < width; x++)
         {
@@ -137,7 +165,6 @@ public IEnumerator ShuffleBoard()
             }
         }
 
-        // Bước 2: Fisher-Yates shuffle
         System.Random rng = new();
         int n = allGems.Count;
         while (n > 1)
@@ -147,7 +174,6 @@ public IEnumerator ShuffleBoard()
             (allGems[n], allGems[k]) = (allGems[k], allGems[n]);
         }
 
-        // Bước 3: Gán lại gem đã shuffle vào vị trí
         int index = 0;
         for (int x = 0; x < width; x++)
         {
@@ -164,23 +190,20 @@ public IEnumerator ShuffleBoard()
             }
         }
 
-        // Đợi tất cả gem di chuyển xong
         yield return StartCoroutine(WaitUntilAllMoved());
 
-        // Kiểm tra match sau khi xáo
         bool hasMatch = gemBoardCtr.Boardchecker.checkBoard();
 
         if (!hasMatch && !DeadLockChecker.Instance.IsDeadLock())
         {
             Debug.Log("Bảng xáo thành công, không match và không deadlock.");
-            break; // thành công
+            break; 
         }
 
         Debug.LogWarning("Sau khi xáo vẫn match hoặc deadlock, thử lại...");
         retry--;
     }
 
-    // Sau cùng, nếu vẫn còn deadlock thì đánh dấu
     if (DeadLockChecker.Instance.IsDeadLock())
     {
         Debug.LogError("Vẫn bị deadlock sau khi xáo nhiều lần!");
@@ -194,17 +217,13 @@ public IEnumerator ShuffleBoard()
     isShuffling = false;
 }
 
-  public IEnumerator WaitUntilAllMoved()
-   {
-    while (!GemSpawner.Instance.IsSpawnDone)
+    public IEnumerator WaitUntilAllMoved()
     {
-        yield return null;
+        while (!GemSpawner.Instance.IsSpawnDone)
+        {
+            yield return null;
+        }
     }
-    }
-
-
-
-
 }  
 
 

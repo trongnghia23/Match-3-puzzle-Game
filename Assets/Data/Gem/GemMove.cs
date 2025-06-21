@@ -11,6 +11,7 @@ public class GemMove : NghiaMono
         base.Loadcomponents();
         this.LoadGemCtr();
     }
+  
     protected virtual void LoadGemCtr()
     {
         if (this.gemCtr != null) return;

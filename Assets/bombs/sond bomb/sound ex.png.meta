@@ -177,6 +177,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -809,7 +822,35 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      sound ex_0: -6145596825330985206
+      sound ex_1: -5412384532823661423
+      sound ex_10: 3488505207148576172
+      sound ex_11: -2158303413363947112
+      sound ex_12: 6252205944541618927
+      sound ex_13: 657479509337891999
+      sound ex_14: -4599823204617082797
+      sound ex_15: 1809777887318438569
+      sound ex_16: 4089615481487511252
+      sound ex_17: 2907471182872712005
+      sound ex_18: 270956931512682707
+      sound ex_19: -31334390872763920
+      sound ex_2: 6728409348880245322
+      sound ex_20: 2900745439358534181
+      sound ex_21: -912522684189902703
+      sound ex_22: 3764525015988674893
+      sound ex_23: 2384298601249078499
+      sound ex_24: -5037162545310802189
+      sound ex_25: -7242660143125135054
+      sound ex_26: -1451498785506433684
+      sound ex_27: 4718915447501675108
+      sound ex_3: 6205966275096173317
+      sound ex_4: -252927805142233435
+      sound ex_5: 5186363022598629224
+      sound ex_6: 2221529041129091413
+      sound ex_7: 3420115034992829856
+      sound ex_8: -398417057014565960
+      sound ex_9: 2954073228870230042
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

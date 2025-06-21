@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GemBoardCtr : NghiaMono
 {
@@ -11,12 +11,22 @@ public class GemBoardCtr : NghiaMono
 
     [SerializeField] protected GemSwaper gemSwaper;    
     public GemSwaper GemSwaper => gemSwaper;
+
+    [SerializeField] protected DeadLockChecker deadLockChecker;
+    public DeadLockChecker DeadLockChecker => deadLockChecker;
+
+    [SerializeField] protected GameManagerCtr gameManagerCtr;
+    public GameManagerCtr GameManagerCtr => gameManagerCtr;
+
+    public Vector2Int LastSwapPos;
     protected override void Loadcomponents()
     {
         base.Loadcomponents();
         this.LoadGemboard();
         this.LoadBoardchecker();
         this.LoadGemSwaper();
+        this.LoadDeadLockChecker();
+      this.LoadGameManagerCtr();
     }
 
     protected virtual void LoadGemboard()
@@ -39,7 +49,33 @@ public class GemBoardCtr : NghiaMono
         Debug.Log(transform.name + " :LoadGemSwaper", gameObject);
     }
 
-    ///////////////////////////////
-    
+    protected virtual void LoadDeadLockChecker()
+    {
+        if (this.deadLockChecker != null) return;
+        this.deadLockChecker = GetComponentInChildren<DeadLockChecker>();
+        Debug.Log(transform.name + " :LoadDeadLockChecker", gameObject);
+    }
+    protected virtual void LoadGameManagerCtr()
+    {
+        if (this.gameManagerCtr != null) return;
+        this.gameManagerCtr = Transform.FindAnyObjectByType<GameManagerCtr>();
+        Debug.Log(transform.name + " :LoadGameManagerCtr", gameObject);
+    }
 
+
+    public GameState CurrentState = GameState.Move;
+    public void SetGameState(GameState state)
+    {
+        Debug.Log($"State chuyển từ {CurrentState} => {state}");
+        CurrentState = state;
+
+    }
+    public enum GameState
+    {
+        Wait,
+        Win,
+        Lose,
+        Pause,
+        Move,
+    }
 }
