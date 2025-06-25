@@ -15,7 +15,6 @@ MonoBehaviour:
   width: 7
   height: 9
   gemBoardLayout:
-    currentLevel: {fileID: 0}
     rows:
     - row: 01010101010101
     - row: 01010100010101
@@ -31,19 +30,18 @@ MonoBehaviour:
     Gametype: 1
     CounterValue: 66
   LevelGoals:
-  - NumberNeeded: 24
-    NumberCollected: 0
+  - NumberNeeded: 5
+    NumberCollected: 12
     GoalsSprite: {fileID: 21300000, guid: 93dd61e6ad366184abd24c987e8b5184, type: 2}
     MatchValue: Bluegem
-  - NumberNeeded: 24
-    NumberCollected: 0
-    GoalsSprite: {fileID: 21300000, guid: 2f38e16c779d82d43835ffba771875e0, type: 2}
-    MatchValue: Goldgem
-  - NumberNeeded: 24
-    NumberCollected: 0
-    GoalsSprite: {fileID: 21300000, guid: 33aa346b401dcad4f9e24ea2be8fc3c8, type: 2}
-    MatchValue: Redgem
-  - NumberNeeded: 24
-    NumberCollected: 0
-    GoalsSprite: {fileID: 21300000, guid: 388da48968711c840a73aab4dd24ca9e, type: 2}
-    MatchValue: Purplegem
+  tileMapLayout:
+    rows:
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000
+    - row: 00000000000000000000000000000000000000000000000000000000

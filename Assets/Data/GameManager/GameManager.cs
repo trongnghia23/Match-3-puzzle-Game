@@ -27,6 +27,7 @@ public class GameManager : NghiaMono
     [Header("SO")]
     public TheWorld World;
     public int Level;
+    
     protected override void Awake()
     {
         base.Awake();
@@ -71,6 +72,7 @@ public class GameManager : NghiaMono
                 gameManagerCtr.GemBoardCtr.Gemboard.width = World.levels[Level].width;
                 gameManagerCtr.GemBoardCtr.Gemboard.arrayLayout = World.levels[Level].gemBoardLayout;
                 gameManagerCtr.GoalManager.Goal = World.levels[Level].LevelGoals;
+                gameManagerCtr.TileSpawner.SetTileMapLayout(World.levels[Level].tileMapLayout);
             }
         }
     }

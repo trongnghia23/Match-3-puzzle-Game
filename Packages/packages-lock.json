@@ -1,14 +1,5 @@
 {
   "dependencies": {
-    "com.boxqkrtm.ide.cursor": {
-      "version": "https://github.com/boxqkrtm/com.unity.ide.cursor.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.test-framework": "1.1.9"
-      },
-      "hash": "38fecf55e4fd94ccfe58a92ed8ad1a529ba1694e"
-    },
     "com.unity.2d.animation": {
       "version": "10.1.4",
       "depth": 1,
@@ -108,6 +99,17 @@
       "dependencies": {
         "com.unity.profiling.core": "1.0.2",
         "com.unity.modules.subsystems": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.adaptiveperformance.google.android": {
+      "version": "5.1.4",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.androidjni": "1.0.0",
+        "com.unity.modules.subsystems": "1.0.0",
+        "com.unity.adaptiveperformance": "5.1.0"
       },
       "url": "https://packages.unity.com"
     },

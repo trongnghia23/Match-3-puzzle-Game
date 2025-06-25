@@ -13,15 +13,17 @@ public bool IsSpawnDone => spawnTime == 0;
 
 private int spawnTime = 0;
 
-public void SpawnTimeUp()
-{
-    spawnTime++;
-}
+    public void SpawnTimeUp()
+    {
+        spawnTime++;
+        Debug.Log("SpawnTimeUp: " + spawnTime);
+    }
 
-public void SpawnTimeDown()
-{
-    spawnTime = Mathf.Max(0, spawnTime - 1);
-}
+    public void SpawnTimeDown()
+    {
+        spawnTime = Mathf.Max(0, spawnTime - 1);
+        Debug.Log("SpawnTimeDown: " + spawnTime);
+    }
     protected override void Awake()
     {
         base.Awake();
@@ -63,7 +65,8 @@ protected override void Loadcomponents()
         {
             for (int y = 0; y < gemboardCtr.Gemboard.height; y++)
             {
-                if (gemboardCtr.Gemboard.gemBoardNode[x, y].Gem == null)
+                Node node = gemboardCtr.Gemboard.gemBoardNode[x, y];
+                if (node.Gem == null && (node.Tile == null || !node.Tile.IsBlockingGem()))
                 {
 
 
@@ -76,39 +79,58 @@ protected override void Loadcomponents()
 
     protected virtual void RefillGem(int x, int y)
     {
-        int yOffSet = 1;
 
-        while (y + yOffSet < gemboardCtr.Gemboard.height && gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem == null)
+        Node targetNode = gemboardCtr.Gemboard.gemBoardNode[x, y];
+        if (targetNode.Tile != null && targetNode.Tile.IsBlockingGem())
+            return;
+        int yOffSet = 1;
+        while (y + yOffSet < gemboardCtr.Gemboard.height)
         {
+            var upperNode = gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet];
+
+            if (upperNode.Gem != null)
+            {
+                // Nếu gem này nằm trong tile block thì không được kéo xuống
+                if (upperNode.Tile != null && upperNode.Tile.IsBlockingGem())
+                {
+                    yOffSet++;
+                    continue; // bỏ qua gem bị kẹt
+                }
+
+                break;
+            }
+
             yOffSet++;
         }
 
+
         if (y + yOffSet < gemboardCtr.Gemboard.height && gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem != null)
-        {
-            if (gemboardCtr.Gemboard.arrayLayout.rows[y].row[x])
             {
-                gemboardCtr.Gemboard.gemBoardNode[x, y] = new Node(false, null);
+                if (gemboardCtr.Gemboard.arrayLayout.rows[y].row[x])
+                {
+                    gemboardCtr.Gemboard.gemBoardNode[x, y].Gem = null;
 
-            }
-            else
-            {
-                GameObject gemObject = gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem;
-                GemCtr gemCtr = gemObject.GetComponent<GemCtr>();
-                Vector3 TargetPos = new Vector3(x - gemboardCtr.Gemboard.spacingX, y - gemboardCtr.Gemboard.spacingY, gemObject.transform.position.z);
-
+                }
+                else
+                {
+                    GameObject gemObject = gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem;
+                    GemCtr gemCtr = gemObject.GetComponent<GemCtr>();
+                    Vector3 TargetPos = new Vector3(x - gemboardCtr.Gemboard.spacingX, y - gemboardCtr.Gemboard.spacingY, gemObject.transform.position.z);
+                    SpawnTimeUp();
                 gemCtr.GemMove.MoveToTarget(TargetPos);
                 gemCtr.SetIndicies(x, y);
 
-                gemboardCtr.Gemboard.gemBoardNode[x, y] = gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet];
-                gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet] = new Node(true, null);
+                    gemboardCtr.Gemboard.gemBoardNode[x, y].Gem = gemObject;
+                    gemboardCtr.Gemboard.gemBoardNode[x, y + yOffSet].Gem = null;
 
+                }
+            }
+            if (y + yOffSet == gemboardCtr.Gemboard.height)
+            {
+                SpawnGemOnTop(x, y);
             }
         }
-        if (y + yOffSet == gemboardCtr.Gemboard.height)
-        {
-            SpawnGemOnTop(x, y);
-        }
-    }
+     
 
     protected virtual void SpawnGemOnTop(int x, int y)
     {
@@ -122,13 +144,14 @@ protected override void Loadcomponents()
         }
         else
         {
-            Transform NewPrefab = this.RandomPrefab();
-            Transform NewGem = this.Spawn(NewPrefab, new Vector2(x - gemboardCtr.Gemboard.spacingX, gemboardCtr.Gemboard.height - gemboardCtr.Gemboard.spacingY), Quaternion.identity);
+            Transform randomPrefab = this.RandomPrefab();
+            Vector3 spawnPos = new Vector3(x - gemboardCtr.Gemboard.spacingX, gemboardCtr.Gemboard.height - gemboardCtr.Gemboard.spacingY);
+            Transform NewGem = this.Spawn(randomPrefab, spawnPos, Quaternion.identity, this.holder); 
             NewGem.gameObject.SetActive(true);
-            this.Spawncountup();
             NewGem.GetComponent<GemCtr>().SetIndicies(x, Index);
             gemboardCtr.Gemboard.gemBoardNode[x, Index] = new Node(true, NewGem.gameObject);
             Vector3 targetPos = new Vector3(NewGem.transform.position.x, NewGem.transform.position.y - LocationToMoveTo, NewGem.transform.position.z);
+            GemSpawner.Instance.SpawnTimeUp();
             NewGem.GetComponent<GemCtr>().GemMove.MoveToTarget(targetPos);
         }
 

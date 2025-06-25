@@ -4,7 +4,6 @@ using System.Collections;
 [System.Serializable]
 public class ArrayLayout 
 {
-    public Levels currentLevel;
 
     [System.Serializable]
     public class Row
@@ -12,5 +11,5 @@ public class ArrayLayout
         public bool[] row;
     }
 
-    public Row[] rows = new Row[14];
+    public Row[] rows = new Row[0];
 }

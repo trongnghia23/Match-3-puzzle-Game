@@ -11,6 +11,8 @@ public class GameManagerCtr : NghiaMono
     [SerializeField] protected GoalManager goalManager;
     public GoalManager GoalManager => goalManager;
     [SerializeField] protected GemBoardCtr gemBoardCtr;
+    [SerializeField] protected TileSpawner tileSpawner;
+    public TileSpawner TileSpawner => tileSpawner;
     public GemBoardCtr GemBoardCtr => gemBoardCtr;
     protected override void Loadcomponents()
     {
@@ -20,6 +22,7 @@ public class GameManagerCtr : NghiaMono
         this.LoadGoalManager();
         this.LoadGameManager();
         this.LoadGemBoardCtr();
+        this.LoadTileSpawner();
     }
     protected virtual void LoadGameManager()
     {
@@ -51,5 +54,10 @@ public class GameManagerCtr : NghiaMono
         this.gemBoardCtr = Transform.FindAnyObjectByType<GemBoardCtr>();
         Debug.Log(transform.name + " :LoadGemBoardCtr", gameObject);
     }
-   
+    protected virtual void LoadTileSpawner()
+    {
+        if (this.tileSpawner != null) return;
+        this.tileSpawner = Transform.FindAnyObjectByType<TileSpawner>();
+        Debug.Log(transform.name + " :LoadTileSpawner", gameObject);
+    }
 }

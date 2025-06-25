@@ -47,6 +47,7 @@ public class spawner : NghiaMono
     {
         int rand = Random.Range(0, this.prefabs.Count);
         return this.prefabs[rand];
+
     }
     public virtual void Spawncountup()
     {
@@ -58,26 +59,30 @@ public class spawner : NghiaMono
         this.spawnCount--;
     }
 
-    public virtual Transform Spawn(Transform prefab, Vector3 spawnPos, Quaternion rotation)
+   public virtual Transform Spawn(Transform prefab, Vector3 spawnPos, Quaternion rotation, Transform parent)
+{
+    Transform newPrefab = this.GetObjectFromPool(prefab);
+    newPrefab.SetPositionAndRotation(spawnPos, rotation);
+    newPrefab.parent = parent != null ? parent : this.holder;
+    newPrefab.gameObject.SetActive(true);
+    this.spawnCount++;
+    return newPrefab;
+}
+    public virtual Transform Spawn(string prefabName, Vector3 spawnPos, Quaternion rotation, Transform parent = null)
     {
-        Transform newPrefab = this.GetObjectFromPool(prefab);
-        newPrefab.SetPositionAndRotation(spawnPos, rotation);
-        newPrefab.parent = this.holder;
-        this.spawnCount++;
-        return newPrefab;
-    }
-    public virtual Transform Spawn(string prefabName, Vector3 spawnPos, Quaternion rotation)
-    {
-        Transform prefab = this.GetPrefabByName(prefabName);
+        Transform prefab = GetPrefabByName(prefabName);
         if (prefab == null)
         {
             Debug.LogWarning("Prefab not found: " + prefabName);
             return null;
         }
 
-        return this.Spawn(prefab, spawnPos, rotation);
+        return this.Spawn(prefab, spawnPos, rotation, parent);
     }
-
+    public virtual Transform SpawnByEnum(System.Enum enumVal, Vector3 spawnPos, Quaternion rotation, Transform parent = null)
+    {
+        return Spawn(enumVal.ToString(), spawnPos, rotation, parent);
+    }
     public virtual void Despawn(Transform obj)
     {
         this.poolObjs.Add(obj);
@@ -87,6 +92,11 @@ public class spawner : NghiaMono
 
     protected virtual Transform GetObjectFromPool(Transform prefab)
     {
+        if (prefab == null)
+        {
+            Debug.LogError("GetObjectFromPool: prefab is null or destroyed.");
+            return null;
+        }
         for (int i = 0; i < poolObjs.Count; i++)
         {
             Transform poolObj = poolObjs[i];
@@ -96,12 +106,20 @@ public class spawner : NghiaMono
                 return poolObj;
             }
         }
-
+        if (prefab == null)
+    {
+            Debug.LogError("Prefab was destroyed before Instantiate could be called.");
+            return null;
+        }
         Transform newPrefab = Instantiate(prefab);
         newPrefab.name = prefab.name;
         return newPrefab;
     }
-
+    public virtual Transform GetPrefabByEnum(System.Enum enumValue)
+    {
+        string name = enumValue.ToString();
+        return GetPrefabByName(name);
+    }
     public virtual Transform GetPrefabByName(string prefabName)
     {
         foreach (Transform prefab in this.prefabs)

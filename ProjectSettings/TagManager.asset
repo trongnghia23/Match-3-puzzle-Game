@@ -10,6 +10,7 @@ TagManager:
   - Purplegem
   - Goldgem
   - BoxBomb
+  - Lilacgem
   layers:
   - Default
   - TransparentFX

@@ -1,6 +1,7 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class LevelButton : NghiaMono
 {
@@ -10,20 +11,63 @@ public class LevelButton : NghiaMono
     public Sprite LockSprite;
     protected Image ButtonImage;
     protected Button MyButton;
-    public TMP_Text LevelText;
-
+    private int StarsActive;
+    [Header("LvUI")]
     public Image[] Stars;
     public int ButtonLevel;
+    public TMP_Text LevelText;
     public ConfirmPanel ConfirmPanel;
+   
+
+    private GameData gameData;
+    
     protected override void Start()
     {
         base.Start();
         ButtonImage = GetComponent<Image>();
         MyButton = GetComponent<Button>();
-        this.DecideSprire();
-        this.ShowLv();
-    } 
-    public virtual void DecideSprire()
+        UpdateUI();
+
+    }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        StartCoroutine(DelayedLoadData());
+    }
+
+    private IEnumerator DelayedLoadData()
+    {
+        yield return null; // đợi 1 frame
+        UpdateUI(); // LoadData, DecideSprite, ...
+    }
+    protected virtual void UpdateUI()
+    {
+        LoadData();
+        DecideSprite();
+        ShowLv();
+        ActiveStar();
+    }
+    protected override void Loadcomponents()
+    {
+        base.Loadcomponents();
+        this.LoadGameData();
+        this.LoadConfirmPanel();
+    }
+    protected virtual void LoadGameData()
+    {
+        if (this.gameData != null) return;
+        this.gameData = Transform.FindAnyObjectByType<GameData>();
+        Debug.Log(transform.name + " :LoadGameData", gameObject);
+    }
+
+    public virtual void LoadData()
+    {
+        if (gameData == null) return;
+
+        isActive = gameData.savedata.IsActive[ButtonLevel - 1];
+        StarsActive = gameData.savedata.Stars[ButtonLevel - 1];
+    }
+    public virtual void DecideSprite()
     {
         if (isActive)
         {
@@ -40,9 +84,10 @@ public class LevelButton : NghiaMono
     }
     protected virtual void ActiveStar()
     {
-        for (int i = 0; i < Stars.Length; i++)
+        int count = Mathf.Min(StarsActive, Stars.Length);
+        for (int i = 0; i < count; i++)
         {
-            Stars[i].enabled = false;
+            Stars[i].gameObject.SetActive(true);
         }
     }
     protected virtual void ShowLv()
@@ -57,8 +102,8 @@ public class LevelButton : NghiaMono
     }
     public virtual void ShowConfirmPanel()
     {
-        ConfirmPanel.GetComponent<ConfirmPanel>().Level = ButtonLevel;
-        this.ConfirmPanel.gameObject.SetActive(true);
+        ConfirmPanel.Level = ButtonLevel;
+        ConfirmPanel.gameObject.SetActive(true);
     }
     
 }

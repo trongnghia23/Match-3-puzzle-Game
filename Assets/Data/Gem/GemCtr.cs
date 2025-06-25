@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -48,6 +48,7 @@ public class GemCtr : NghiaMono
         this.gemMove = GetComponentInChildren<GemMove>();
         Debug.Log(transform.name + " :LoadGemMove", gameObject);
     }
+
    public void SetIndicies(int _x, int _y)
     {
         xIndex = _x;
@@ -63,6 +64,6 @@ public enum GemType
     Green,
     Gold,
     Purple,
-    super,
+    Lilac,
     Bomb
 } 

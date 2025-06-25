@@ -1,9 +1,8 @@
-﻿using NUnit.Framework;
+﻿
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.LightTransport;
-using UnityEngine.UI;
+
 
 [Serializable]
 public class BlankGoal

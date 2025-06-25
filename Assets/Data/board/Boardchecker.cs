@@ -2,16 +2,13 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using System.Linq;
 public class Boardchecker : NghiaMono
 {
     protected static Boardchecker instance;
     public static Boardchecker Instance => instance;
     [SerializeField] protected GemBoardCtr gemboardCtr;
     [SerializeField] protected GemSpawnCtr gemSpawnCtr;
-    public static List<Vector2Int> bombsToSpawn = new();
-    private bool isProcessingMatch = false;
-    //private List<BombCtr> bombsToExplode = new();
+    
     protected override void Awake()
     {
         base.Awake();
@@ -24,6 +21,7 @@ public class Boardchecker : NghiaMono
         base.Loadcomponents();
         this.LoadGemboardCtr();
         this.LoadGemSpawnCtr();
+       
     }
     protected virtual void LoadGemboardCtr()
     {
@@ -72,19 +70,10 @@ public class Boardchecker : NghiaMono
                                 {
                                     gemSpawnCtr.GemSpawner.GemtoRemove.Add(g);
                                     g.ItMatched = true;
-                                   // if (g is BombCtr bomb)
-                                       // bombsToExplode.Add(bomb);
                                 }
                                 
                             }
-                           /* if (superMatched.direction == MatchDirection.super)
-                            {
-                                Vector2Int swapPos = gemboardCtr.LastSwapPos;
-
-                                GemCtr centerGem = superMatched.connectedgems.OrderBy(g => Vector2Int.Distance(new Vector2Int(g.xIndex, g.yIndex),swapPos)).First();
-
-                                bombsToSpawn.Add(new Vector2Int(centerGem.xIndex, centerGem.yIndex));
-                            }*/
+                           
                             hasMatch = true;
                         }
                     }
@@ -98,83 +87,121 @@ public class Boardchecker : NghiaMono
     {
         gemboardCtr.GameManagerCtr.ScoreManager.StreakValue = 0;
         gemboardCtr.GemSwaper.isProccessingMove = false;
-        isProcessingMatch = false;
     }
     public IEnumerator ProcessTurnOnMatchedBoard(bool _subtractMoves)
     {
        
-        isProcessingMatch = true;
+       
         gemboardCtr.GemSwaper.isProccessingMove = true;
-        foreach (GemCtr gem in gemSpawnCtr.GemSpawner.GemtoRemove)
+        HandleTileHit(gemSpawnCtr.GemSpawner.GemtoRemove);
+        bool hasShuffled = false;
+        while (true)
         {
-            gem.ItMatched = false;
-            gemboardCtr.GameManagerCtr.ScoreManager.StreakValue ++;
-        }   
-      
-       yield return StartCoroutine(gemSpawnCtr.GemSpawner.RemoveAndRefillGem(gemSpawnCtr.GemSpawner.GemtoRemove));
-        while (!GemSpawner.Instance.IsSpawnDone)
-        {
-            yield return null;
-        }
-        yield return new WaitForSeconds(0.2f);
-        if (!gemboardCtr.Gemboard.isInitializingBoard && !gemboardCtr.Gemboard.isShuffling)
-         {
-          if (DeadLockChecker.Instance.IsDeadLock())
-           {
-                Debug.LogWarning("Is Dead Lock");
-                yield return StartCoroutine(gemboardCtr.Gemboard.ShuffleBoard());
-                ResetState();
-                yield break;
-            }  
+            yield return StartCoroutine(gemSpawnCtr.GemSpawner.RemoveAndRefillGem(gemSpawnCtr.GemSpawner.GemtoRemove));
 
-        if  (checkBoard())
+            // chờ spawn xong
+            while (!GemSpawner.Instance.IsSpawnDone) yield return null;
+
+            yield return new WaitForSeconds(0.2f);
+
+            if (gemboardCtr.Gemboard.isInitializingBoard || gemboardCtr.Gemboard.isShuffling)
+                break;
+            SpreadAllSlimes();
+            if (checkBoard())          // còn match → loop lại
             {
-                yield return StartCoroutine(ProcessTurnOnMatchedBoard(false));
                 
+                continue;
             }
-           }
-        gemboardCtr.GameManagerCtr.ScoreManager.IncreaseScore(gemboardCtr.GameManagerCtr.ScoreManager.basePieceValue * gemboardCtr.GameManagerCtr.ScoreManager.StreakValue);
+            if (DeadLockChecker.Instance.IsDeadLock())
+            {
+                yield return StartCoroutine(gemboardCtr.DeadLockChecker.ShuffleBoard());
+                hasShuffled = true;
+                break;
+            }
+            break;
+        }
+        if (!hasShuffled)
+        {
+            gemboardCtr.GameManagerCtr.ScoreManager.IncreaseScore(gemboardCtr.GameManagerCtr.ScoreManager.basePieceValue * gemboardCtr.GameManagerCtr.ScoreManager.StreakValue);
+        }
         ResetState();
     }
-      
 
+    private static readonly Vector2Int[] directions = new Vector2Int[]
+    {
+    new(0, 1), new(0, -1), new(1, 0), new(-1, 0)
+    };
+
+    private void HandleTileHit(List<GemCtr> gems)
+    {
+        HashSet<TileCtr> tilesToHit = new();
+
+        foreach (var gem in gems)
+        {
+            gem.ItMatched = false;
+            gemboardCtr.GameManagerCtr.ScoreManager.StreakValue++;
+
+            var node = gemboardCtr.Gemboard.gemBoardNode[gem.xIndex, gem.yIndex];
+            var tile = node.Tile;
+
+            if (tile != null && tile.TilesHp > 0)
+                tilesToHit.Add(tile);
+
+            foreach (var dir in directions)
+            {
+                int nx = gem.xIndex + dir.x;
+                int ny = gem.yIndex + dir.y;
+
+                if (nx < 0 || ny < 0 ||
+                    nx >= gemboardCtr.Gemboard.width || ny >= gemboardCtr.Gemboard.height)
+                    continue;
+
+                var neighborTile = gemboardCtr.Gemboard.gemBoardNode[nx, ny].Tile;
+                if (neighborTile != null && neighborTile.TilesHp > 0 &&
+                    neighborTile.tileType != TileType.LockTile)   // loại trừ LockTile cạnh bên
+                {
+                    tilesToHit.Add(neighborTile);
+                }
+            }
+        }
+
+        // Chỉ gọi Hit một lần cho mỗi tile
+        foreach (var t in tilesToHit)
+        {
+            t.Hit();
+        }
+    }
+    public void SpreadAllSlimes()
+    {
+        int spreadCount = 0;
+        foreach (Node n in gemboardCtr.Gemboard.gemBoardNode)
+        {
+            var t = n.Tile;
+            if (t != null && t.tileType == TileType.SlimeTile && t.TilesHp > 0)
+            {
+                if (t.OnPlayerMove())           // chỉ true khi thực sự lan
+                {
+                    spreadCount++;
+                    if (spreadCount >= 2) break; // tối đa 2 slime lan mỗi lượt
+                }
+            }
+        }
+    }
     protected MatchResult SuperMached(MatchResult _MachedResult)
     {
         List<GemCtr> combinedGems = new(_MachedResult.connectedgems);
         bool foundSuperMatch = false;
 
-        if (_MachedResult.direction == MatchDirection.chuV)
+        
+        if (_MachedResult.direction == MatchDirection.doc || _MachedResult.direction == MatchDirection.docdai)
         {
             foreach (GemCtr gem in _MachedResult.connectedgems)
             {
                 List<GemCtr> extraGems = new();
-                checkDirection(gem, new Vector2Int(1, 0), extraGems);
-                checkDirection(gem, new Vector2Int(-1, 0), extraGems);
                 checkDirection(gem, new Vector2Int(0, 1), extraGems);
                 checkDirection(gem, new Vector2Int(0, -1), extraGems);
 
                 if (extraGems.Count >= 3)
-                {
-                    Debug.LogWarning("an 5 gem " + gem.GemType);
-                    foreach (var g in extraGems)
-                    {
-                        if (!combinedGems.Contains(g))
-                            combinedGems.Add(g);
-                    }
-                    foundSuperMatch = true;
-                    break;
-                }
-            }
-        }
-        else if (_MachedResult.direction == MatchDirection.doc || _MachedResult.direction == MatchDirection.docdai)
-        {
-            foreach (GemCtr gem in _MachedResult.connectedgems)
-            {
-                List<GemCtr> extraGems = new();
-                checkDirection(gem, new Vector2Int(0, 1), extraGems);
-                checkDirection(gem, new Vector2Int(0, -1), extraGems);
-
-                if (extraGems.Count >= 5)
                 {
                     Debug.LogWarning("an ngang sieu cap " + gem.GemType);
                     foreach (var g in extraGems)
@@ -195,7 +222,7 @@ public class Boardchecker : NghiaMono
                 checkDirection(gem, new Vector2Int(1, 0), extraGems);
                 checkDirection(gem, new Vector2Int(-1, 0), extraGems);
 
-                if (extraGems.Count >= 5)
+                if (extraGems.Count >= 3)
                 {
                     Debug.LogWarning("an doc sieu cap " + gem.GemType);
                     foreach (var g in extraGems)
@@ -240,10 +267,11 @@ public class Boardchecker : NghiaMono
             }
         }
 
-        // Add the center gem manually
-        matches["vertical"].Insert(matches["vertical"].Count / 2, gem);
-        matches["horizontal"].Insert(matches["horizontal"].Count / 2, gem);
-
+        if (IsValidForMatch(gem))
+        {
+            matches["vertical"].Insert(matches["vertical"].Count / 2, gem);
+            matches["horizontal"].Insert(matches["horizontal"].Count / 2, gem);
+        }
         var verticalGems = matches["vertical"];
         var horizontalGems = matches["horizontal"];
 
@@ -264,7 +292,7 @@ public class Boardchecker : NghiaMono
             return new MatchResult
             {
                 connectedgems = connectedgems,
-                direction = MatchDirection.chuV
+                direction = MatchDirection.super
             };
         }
 
@@ -315,7 +343,7 @@ public class Boardchecker : NghiaMono
 
 
     void checkDirection(GemCtr gem, Vector2Int direction, List<GemCtr> connectedgems)
-{
+    {
     GemType gemType = gem.GemType;
     int x = gem.xIndex + direction.x;
     int y = gem.yIndex + direction.y;
@@ -323,9 +351,11 @@ public class Boardchecker : NghiaMono
     while (x >= 0 && x < gemboardCtr.Gemboard.width && y >= 0 && y < gemboardCtr.Gemboard.height)
     {
         var node = gemboardCtr.Gemboard.gemBoardNode[x, y];
-        if (node.isUsable && node.Gem != null)
-        {
+            if (!node.isUsable || node.Gem == null)
+                break;
             GemCtr gemAround = node.Gem.GetComponent<GemCtr>();
+            if (!IsValidForMatch(gemAround))
+                break;
             if (gemAround != null && gemAround.GemType == gemType)
             {
                 if (!connectedgems.Contains(gemAround))
@@ -341,12 +371,17 @@ public class Boardchecker : NghiaMono
                 break;
             }
         }
-        else
-        {
-            break;
-        }
+        
     }
-}
+    private bool IsValidForMatch(GemCtr gem)
+    {
+        if (gem == null) return false;
+
+        Node node = gemboardCtr.Gemboard.gemBoardNode[gem.xIndex, gem.yIndex];
+
+        if (node.Tile == null) return true;
+        return node.Tile.tileType == TileType.LockTile;
+    }
 
     public class MatchResult
     {

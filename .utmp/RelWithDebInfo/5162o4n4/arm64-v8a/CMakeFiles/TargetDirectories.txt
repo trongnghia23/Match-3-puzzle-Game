@@ -1,0 +1,5 @@
+F:/uni/projects/candy crush/.utmp/RelWithDebInfo/5162o4n4/arm64-v8a/CMakeFiles/edit_cache.dir
+F:/uni/projects/candy crush/.utmp/RelWithDebInfo/5162o4n4/arm64-v8a/CMakeFiles/rebuild_cache.dir
+F:/uni/projects/candy crush/.utmp/RelWithDebInfo/5162o4n4/arm64-v8a/GameActivity/CMakeFiles/game.dir
+F:/uni/projects/candy crush/.utmp/RelWithDebInfo/5162o4n4/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+F:/uni/projects/candy crush/.utmp/RelWithDebInfo/5162o4n4/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir

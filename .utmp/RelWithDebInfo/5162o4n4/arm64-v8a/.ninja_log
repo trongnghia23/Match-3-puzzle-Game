@@ -1,0 +1,10 @@
+# ninja log v5
+57	1757	7724776978083111	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	b7d780ed10c1ae49
+15	1766	7724776978103362	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	ac65f910b52551b0
+68	1798	7724776978419413	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	9f3e80f0f53a353a
+0	1811	7724776978589404	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	465dfec80508c05c
+5	1857	7724776979119569	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	6fb65d3e360cb21
+73	2179	7724776982103789	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	ae6ea29e80324662
+63	2184	7724776982344134	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	f906d94a0ab4f5a1
+10	2291	7724776983443713	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	dd23386365ce4ea3
+2292	2402	7724776984624491	F:/uni/projects/candy crush/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5162o4n4/obj/arm64-v8a/libgame.so	8a5ea7190fe51c43

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class GemMove : NghiaMono
@@ -23,8 +23,19 @@ public class GemMove : NghiaMono
 
     public virtual void MoveToTarget(Vector2 targetpos)
     {
-       GemSpawner.Instance.SpawnTimeUp();
+
+        Vector2 currentPos = gemCtr.transform.position;
+
+        if ((Vector2)currentPos == targetpos)
+        {
+            // Không cần move, nhưng phải đảm bảo đếm spawnTime đúng
+            GemSpawner.Instance.SpawnTimeUp();
+            GemSpawner.Instance.SpawnTimeDown();
+            return;
+        }
+
         StartCoroutine(MoveCoroutine(targetpos));
+
     }
 
     protected virtual IEnumerator MoveCoroutine(Vector2 targetpos)

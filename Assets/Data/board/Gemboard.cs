@@ -10,6 +10,7 @@ public class Gemboard : NghiaMono
  
     [SerializeField] GemSpawnCtr gemSpawnCtr;
     [SerializeField] GemBoardCtr gemBoardCtr;
+    [SerializeField] protected TileSpawner tileSpawner;
     [SerializeField] protected Transform holder;
     [Header("BoardSize")]
     public int width;
@@ -37,6 +38,7 @@ public class Gemboard : NghiaMono
         this.LoadGemBoardCtrl();
         this.LoadGemSpawnCtrl();
         this.LoadHolder();
+        this.LoadTileSpawner();
     }
     protected override void Start()
     {
@@ -51,7 +53,12 @@ public class Gemboard : NghiaMono
         this.gemSpawnCtr = Transform.FindAnyObjectByType<GemSpawnCtr>();
         Debug.Log(transform.name + " :LoadGemCtrl", gameObject);
     }
-   
+    protected virtual void LoadTileSpawner()
+    {
+        if (tileSpawner != null) return;
+        tileSpawner = Transform.FindAnyObjectByType<TileSpawner>();
+        Debug.Log(transform.name + " :LoadTileSpawner", gameObject);
+    }
     protected virtual void LoadGemBoardCtrl()
     {
         if (this.gemBoardCtr != null) return;
@@ -89,7 +96,7 @@ public class Gemboard : NghiaMono
                 {
                     
                     Transform prefab = this.gemSpawnCtr.GemSpawner.RandomPrefab();
-                    Transform Gem = this.gemSpawnCtr.GemSpawner.Spawn(prefab, pos, Quaternion.identity);
+                    Transform Gem = this.gemSpawnCtr.GemSpawner.Spawn(prefab, pos, Quaternion.identity, this.holder);
                     GameObject BlankSpace = Instantiate(BlankSpaces, pos, Quaternion.identity);
                     BlankSpace.transform.parent = this.holder;
                     Gem.GetComponent<GemCtr>().SetIndicies(x, y);
@@ -104,9 +111,9 @@ public class Gemboard : NghiaMono
         }
         isInitializingBoard = false;
        bool hasMatchingPairs = this.gemBoardCtr.Boardchecker.checkBoard();
-       bool isDeadLock = this.gemBoardCtr.DeadLockChecker.IsDeadLock();
-
-if (hasMatchingPairs || isDeadLock)
+       bool isDeadLock = this.gemBoardCtr.DeadLockChecker.IsDeadLock(spawnTest: true);
+        tileSpawner.ClearAllTiles();
+        if (hasMatchingPairs || isDeadLock)
 {
     Debug.Log("Co cap giong nhau hoac deadlock - goi lai InitializaBoard");
             StartCoroutine(RetryInitializeBoard());
@@ -117,7 +124,8 @@ else
             FadePanelCtr fade = FindAnyObjectByType<FadePanelCtr>();
             fade.Loading();
             gemBoardCtr.Boardchecker.ResetState();
-}
+            tileSpawner.SpawnAllTiles();
+        }
     }
     private IEnumerator RetryInitializeBoard()
     {
@@ -138,91 +146,15 @@ else
             GemtoDestroy.Clear();
         }
     }
-    public Vector3 GetWorldPosFromXY(int x, int y)
+    public Vector3 GetWorldPos(Vector2Int gridPos)
     {
-        float posX = x - spacingX;
-        float posY = y - spacingY;
-        return new Vector3(posX, posY, 0f);
+        float x = gridPos.x - spacingX;
+        float y = gridPos.y - spacingY;
+        return new Vector3(x, y, 0);
     }
-    public IEnumerator ShuffleBoard()
-{
-    if (isShuffling) yield break;
-    isShuffling = true;
-
-    int retry = 5;
-
-    while (retry > 0)
+    public bool InBounds(int x, int y)
     {
-        gemBoardCtr.GemSwaper.isProccessingMove = true;
-        List<GameObject> allGems = new();
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if (arrayLayout.rows[y].row[x]) continue;
-                GameObject gem = gemBoardNode[x, y]?.Gem;
-                if (gem != null) allGems.Add(gem);
-            }
-        }
-
-        System.Random rng = new();
-        int n = allGems.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = rng.Next(n + 1);
-            (allGems[n], allGems[k]) = (allGems[k], allGems[n]);
-        }
-
-        int index = 0;
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if (arrayLayout.rows[y].row[x]) continue;
-                GameObject gem = allGems[index];
-                gemBoardNode[x, y].Gem = gem;
-
-                Vector2 newPos = new(x - spacingX, y - spacingY);
-                gem.GetComponent<GemCtr>().SetIndicies(x, y);
-                gem.GetComponent<GemCtr>().GemMove.MoveToTarget(newPos);
-                index++;
-            }
-        }
-
-        yield return StartCoroutine(WaitUntilAllMoved());
-
-        bool hasMatch = gemBoardCtr.Boardchecker.checkBoard();
-
-        if (!hasMatch && !DeadLockChecker.Instance.IsDeadLock())
-        {
-            Debug.Log("Bảng xáo thành công, không match và không deadlock.");
-            break; 
-        }
-
-        Debug.LogWarning("Sau khi xáo vẫn match hoặc deadlock, thử lại...");
-        retry--;
-    }
-
-    if (DeadLockChecker.Instance.IsDeadLock())
-    {
-        Debug.LogError("Vẫn bị deadlock sau khi xáo nhiều lần!");
-       
-        yield return StartCoroutine(ShuffleBoard());
-    }
-    else
-    {
-        gemBoardCtr.GemSwaper.isProccessingMove = false;
-    }
-    isShuffling = false;
-}
-
-    public IEnumerator WaitUntilAllMoved()
-    {
-        while (!GemSpawner.Instance.IsSpawnDone)
-        {
-            yield return null;
-        }
+        return x >= 0 && y >= 0 && x < width && y < height;
     }
 }  
 

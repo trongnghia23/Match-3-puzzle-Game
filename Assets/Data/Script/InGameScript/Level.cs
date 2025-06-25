@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "World", menuName = "Level")]
 public class Levels : ScriptableObject
@@ -13,4 +13,8 @@ public class Levels : ScriptableObject
     [Header("GameType")]
     public EndGameType Gametype;
     public BlankGoal[] LevelGoals;
+    [Header("Special Tiles Layout")]
+    public TileMapLayout tileMapLayout;
+
+
 }
