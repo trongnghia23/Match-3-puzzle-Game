@@ -5,31 +5,12 @@ using UnityEditor;
 [CustomEditor(typeof(Levels))]
 public class LevelsEditor : Editor
 {
-    private int lastWidth = -1;
-    private int lastHeight = -1;
-
     public override void OnInspectorGUI()
     {
         Levels levels = (Levels)target;
 
-        // Theo dõi sự thay đổi width/height
-        EditorGUI.BeginChangeCheck();
+        // Vẽ Inspector mặc định
         base.OnInspectorGUI();
-        if (EditorGUI.EndChangeCheck())
-        {
-            if (levels.width != lastWidth || levels.height != lastHeight)
-            {
-                ResizeGemBoardLayout(levels);
-                ResizeTileMapLayout(levels);
-
-                lastWidth = levels.width;
-                lastHeight = levels.height;
-
-                EditorUtility.SetDirty(levels);
-                AssetDatabase.SaveAssets();
-                Repaint();
-            }
-        }
 
         GUILayout.Space(10);
         if (GUILayout.Button("Resize Layouts (Thủ công)"))
@@ -47,11 +28,11 @@ public class LevelsEditor : Editor
         SerializedObject so = new SerializedObject(levels);
         SerializedProperty gemBoardRows = so.FindProperty("gemBoardLayout.rows");
 
-        gemBoardRows.arraySize = levels.width;
-        for (int x = 0; x < levels.width; x++)
+        gemBoardRows.arraySize = levels.height; // rows = height
+        for (int y = 0; y < levels.height; y++)
         {
-            SerializedProperty row = gemBoardRows.GetArrayElementAtIndex(x).FindPropertyRelative("row");
-            row.arraySize = levels.height;
+            SerializedProperty row = gemBoardRows.GetArrayElementAtIndex(y).FindPropertyRelative("row");
+            row.arraySize = levels.width; // columns = width
         }
 
         so.ApplyModifiedProperties();
@@ -62,14 +43,15 @@ public class LevelsEditor : Editor
         SerializedObject so = new SerializedObject(levels);
         SerializedProperty tileMapRows = so.FindProperty("tileMapLayout.rows");
 
-        tileMapRows.arraySize = levels.width;
-        for (int x = 0; x < levels.width; x++)
+        tileMapRows.arraySize = levels.height; // rows = height
+        for (int y = 0; y < levels.height; y++)
         {
-            SerializedProperty row = tileMapRows.GetArrayElementAtIndex(x).FindPropertyRelative("row");
-            row.arraySize = levels.height;
+            SerializedProperty row = tileMapRows.GetArrayElementAtIndex(y).FindPropertyRelative("row");
+            row.arraySize = levels.width; // columns = width
         }
 
         so.ApplyModifiedProperties();
     }
+
 }
 #endif

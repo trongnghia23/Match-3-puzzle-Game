@@ -9,8 +9,11 @@ TagManager:
   - Greengem
   - Purplegem
   - Goldgem
-  - BoxBomb
   - Lilacgem
+  - IceTile
+  - LockTile
+  - StoneTile
+  - SlimeTile
   layers:
   - Default
   - TransparentFX

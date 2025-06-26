@@ -33,7 +33,7 @@ public class GemMove : NghiaMono
             GemSpawner.Instance.SpawnTimeDown();
             return;
         }
-
+        
         StartCoroutine(MoveCoroutine(targetpos));
 
     }

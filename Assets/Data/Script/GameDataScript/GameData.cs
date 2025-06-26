@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
@@ -12,61 +12,125 @@ public class Savedata
 }
 public class GameData : NghiaMono
 {
-    public static GameData Gamedata;
-   public Savedata savedata;
+    /* ---------- Singleton ---------- */
+    public static GameData Instance { get; private set; }
+    
 
+    /* ---------- Data ---------- */
+    public Savedata savedata;
+    public event Action OnLoaded;
+
+    /* ---------- Const ---------- */
+    private const int TOTAL_LEVELS = 100;
+    private string SavePath => Path.Combine(Application.persistentDataPath, "Player.json");
+
+    /* ---------- Life-cycle ---------- */
     protected override void Awake()
     {
-      
-        if (Gamedata == null)
+        base.Awake();
+
+        if (Instance == null)
         {
-            DontDestroyOnLoad(this.gameObject);
-            Gamedata = this;
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+            Debug.Log("GameData Instance created", gameObject);
         }
         else
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
+            return;
         }
 
         Load();
-    }
-    protected override void Start()
-    {
-        base.Start();
-        
-    }
-    public virtual void Save()
-    {
-        BinaryFormatter formatter = new BinaryFormatter();
 
-        FileStream file = File.Open(Application.persistentDataPath + "/Player.dat", FileMode.Create);
-        Savedata data = new Savedata();
-        data = savedata;
-        formatter.Serialize(file, data);
-        file.Close();
-        Debug.Log("Save");
+        // ✅ Đảm bảo mở rộng mảng NGAY trong Awake, trước khi các script khác dùng
+        EnsureArraySize(ref savedata.IsActive, TOTAL_LEVELS);
+        EnsureArraySize(ref savedata.Stars, TOTAL_LEVELS);
+        EnsureArraySize(ref savedata.HighScores, TOTAL_LEVELS);
     }
-    public virtual void Load() 
+    
+    private void OnDisable()            // gọi khi thoát Play mode / app
     {
-        if (File.Exists(Application.persistentDataPath + "/Player.dat"))
+        Save();
+    }
+
+    /* ---------- Save / Load ---------- */
+    public void Save()
+    {
+        EnsureArraySize(ref savedata.IsActive, TOTAL_LEVELS);
+        EnsureArraySize(ref savedata.Stars, TOTAL_LEVELS);
+        EnsureArraySize(ref savedata.HighScores, TOTAL_LEVELS);
+
+
+        string json = JsonUtility.ToJson(savedata, true);
+        File.WriteAllText(this.SavePath, json);
+        Debug.Log($"[GameData] Saved to {this.SavePath}");
+    }
+
+    public void Load()
+    {
+        if (File.Exists(SavePath))
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + "/Player.dat", FileMode.Open);
-            savedata = formatter.Deserialize(file) as Savedata;
-            file.Close();
-            Debug.Log("Load");
+            try
+            {
+                string json = File.ReadAllText(SavePath);
+                savedata = JsonUtility.FromJson<Savedata>(json);
+
+                if (savedata == null)
+                {
+                    throw new Exception("Deserialized save data is null");
+                }
+
+                EnsureArraySize(ref savedata.IsActive, TOTAL_LEVELS);
+                EnsureArraySize(ref savedata.Stars, TOTAL_LEVELS);
+                EnsureArraySize(ref savedata.HighScores, TOTAL_LEVELS);
+
+#if UNITY_EDITOR
+                Debug.Log($"[GameData] Loaded from {SavePath}");
+#endif
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[GameData] Load failed: {e.Message}. Resetting save.");
+                CreateNewSave();
+                Save();
+            }
         }
         else
         {
-            savedata = new Savedata();
-            savedata.IsActive = new bool[100];
-            savedata.Stars = new int[100];
-            savedata.HighScores = new int[100];
-            savedata.IsActive[0] = true;
+            CreateNewSave();
+            Save();
+        }
+        EnsureArraySizePublic();
+        OnLoaded?.Invoke();
+    }
+
+
+
+    /* ---------- Helpers ---------- */
+    private static void EnsureArraySize<T>(ref T[] array, int size)
+    {
+        if (array == null || array.Length < size)
+        {
+            T[] newArr = new T[size];
+            if (array != null) Array.Copy(array, newArr, array.Length);
+            array = newArr;
         }
     }
-    private void OnDisable()
+    public void EnsureArraySizePublic()
     {
-        Save();
+        EnsureArraySize(ref savedata.IsActive, 100);
+        EnsureArraySize(ref savedata.Stars, 100);
+        EnsureArraySize(ref savedata.HighScores, 100);
+    }
+    private void CreateNewSave()
+    {
+        savedata = new Savedata
+        {
+            IsActive = new bool[TOTAL_LEVELS],
+            Stars = new int[TOTAL_LEVELS],
+            HighScores = new int[TOTAL_LEVELS]
+        };
+        savedata.IsActive[0] = true; // mở level đầu tiên
     }
 }

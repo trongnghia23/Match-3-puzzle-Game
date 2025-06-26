@@ -49,7 +49,7 @@ public class TileCtr : NghiaMono
     {
         TileType.IceTile => 1,
         TileType.LockTile => 1,
-        TileType.StoneTile => 5,
+        TileType.StoneTile => 3,
         TileType.SlimeTile => 1,
         _ => 0
     };

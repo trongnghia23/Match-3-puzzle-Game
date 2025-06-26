@@ -30,20 +30,22 @@ public class BackToMenuScenes : NghiaMono
         if (gameData != null)
         {
             int nextLevel = gameManagerCtr.GameManager.Level + 1;
-if (nextLevel < gameData.savedata.IsActive.Length)
-{
-    gameData.savedata.IsActive[nextLevel] = true;
-}
-else
-{
-    Debug.Log("Đã hoàn thành level cuối cùng, không có level kế tiếp.");
-}
+        if (nextLevel < gameData.savedata.IsActive.Length)
+          {
+           gameData.savedata.IsActive[nextLevel] = true;
+          }
+         else
+          {
+             Debug.Log("Đã hoàn thành level cuối cùng, không có level kế tiếp.");
+           }
             gameData.Save();
         }
+        PlayerPrefs.SetInt("OpenLevelSelect", 1);
         SceneManager.LoadScene(LeveltoLoad);
     }
     public virtual void LoseOK()
     {
+        PlayerPrefs.SetInt("OpenLevelSelect", 1);
         SceneManager.LoadScene(LeveltoLoad);
     }
 }

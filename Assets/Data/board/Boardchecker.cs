@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using static GemBoardCtr;
 public class Boardchecker : NghiaMono
 {
     protected static Boardchecker instance;
@@ -73,7 +74,7 @@ public class Boardchecker : NghiaMono
                                 }
                                 
                             }
-                           
+                           gemboardCtr.HintSystem.ResetHint();
                             hasMatch = true;
                         }
                     }
@@ -101,7 +102,8 @@ public class Boardchecker : NghiaMono
 
             // chờ spawn xong
             while (!GemSpawner.Instance.IsSpawnDone) yield return null;
-
+            yield return new WaitUntil(() =>
+           gemboardCtr.CurrentState == GemBoardCtr.GameState.Move);
             yield return new WaitForSeconds(0.2f);
 
             if (gemboardCtr.Gemboard.isInitializingBoard || gemboardCtr.Gemboard.isShuffling)
@@ -109,7 +111,7 @@ public class Boardchecker : NghiaMono
             SpreadAllSlimes();
             if (checkBoard())          // còn match → loop lại
             {
-                
+                HandleTileHit(gemSpawnCtr.GemSpawner.GemtoRemove);
                 continue;
             }
             if (DeadLockChecker.Instance.IsDeadLock())
@@ -124,6 +126,7 @@ public class Boardchecker : NghiaMono
         {
             gemboardCtr.GameManagerCtr.ScoreManager.IncreaseScore(gemboardCtr.GameManagerCtr.ScoreManager.basePieceValue * gemboardCtr.GameManagerCtr.ScoreManager.StreakValue);
         }
+       
         ResetState();
     }
 
@@ -168,7 +171,14 @@ public class Boardchecker : NghiaMono
         // Chỉ gọi Hit một lần cho mỗi tile
         foreach (var t in tilesToHit)
         {
-            t.Hit();
+            int oldHp = t.TilesHp;
+            t.Hit();                       // trừ HP
+
+            if (oldHp > 0 && t.TilesHp <= 0)   // tile vừa bị phá xong
+            {
+                gemboardCtr.GameManagerCtr.GoalManager.CompareGoal(t.tag); // hay t.TileType.ToString()
+                gemboardCtr.GameManagerCtr.GoalManager.updateGoal();
+            }
         }
     }
     public void SpreadAllSlimes()

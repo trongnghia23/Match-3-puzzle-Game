@@ -5,106 +5,73 @@ using System.Collections;
 
 public class LevelButton : NghiaMono
 {
-    [Header("Active")]
-    public bool isActive;
-    public Sprite ActiveSprite;
-    public Sprite LockSprite;
-    protected Image ButtonImage;
-    protected Button MyButton;
-    private int StarsActive;
-    [Header("LvUI")]
-    public Image[] Stars;
-    public int ButtonLevel;
-    public TMP_Text LevelText;
-    public ConfirmPanel ConfirmPanel;
-   
+    [Header("Sprites")]
+    [SerializeField] private Sprite activeSprite;
+    [SerializeField] private Sprite lockSprite;
 
-    private GameData gameData;
-    
-    protected override void Start()
-    {
-        base.Start();
-        ButtonImage = GetComponent<Image>();
-        MyButton = GetComponent<Button>();
-        UpdateUI();
+    [Header("UI Refs")]
+    [SerializeField] private Image[] starIcons;
+    [SerializeField] private TMP_Text levelText;
+    [SerializeField] private ConfirmPanel confirmPanel;
 
-    }
-    protected override void OnEnable()
+    private Image img;
+    private Button btn;
+    private int earnedStars;
+    private bool isActive;
+    [SerializeField] private int buttonLevel;
+
+    /* ---------- Mono ---------- */
+    protected override void Awake()
     {
-        base.OnEnable();
-        StartCoroutine(DelayedLoadData());
+        img = GetComponent<Image>();
+        btn = GetComponent<Button>();
+
+        // để chắc chắc GameData đã init
+        StartCoroutine(WaitForGameDataThenInit());
     }
 
-    private IEnumerator DelayedLoadData()
+    private IEnumerator WaitForGameDataThenInit()
     {
-        yield return null; // đợi 1 frame
-        UpdateUI(); // LoadData, DecideSprite, ...
-    }
-    protected virtual void UpdateUI()
-    {
-        LoadData();
-        DecideSprite();
-        ShowLv();
-        ActiveStar();
-    }
-    protected override void Loadcomponents()
-    {
-        base.Loadcomponents();
-        this.LoadGameData();
-        this.LoadConfirmPanel();
-    }
-    protected virtual void LoadGameData()
-    {
-        if (this.gameData != null) return;
-        this.gameData = Transform.FindAnyObjectByType<GameData>();
-        Debug.Log(transform.name + " :LoadGameData", gameObject);
+        while (GameData.Instance == null) yield return null;
+        Refresh();
+        GameData.Instance.OnLoaded += Refresh;   // đăng ký lắng nghe khi GameData load lại
     }
 
-    public virtual void LoadData()
+    private void OnDisable()
     {
-        if (gameData == null) return;
+        if (GameData.Instance != null)
+            GameData.Instance.OnLoaded -= Refresh;
+    }
 
-        isActive = gameData.savedata.IsActive[ButtonLevel - 1];
-        StarsActive = gameData.savedata.Stars[ButtonLevel - 1];
-    }
-    public virtual void DecideSprite()
+    /* ---------- Public ---------- */
+    public void ShowConfirmPanel() => confirmPanel.Show(buttonLevel);
+
+    /* ---------- Core ---------- */
+    private void Refresh()
     {
-        if (isActive)
-        {
-            ButtonImage.sprite = ActiveSprite;
-            MyButton.enabled = true;
-            LevelText.enabled = true;
-        }
-        else 
-        {
-            ButtonImage.sprite = LockSprite;
-            MyButton.enabled = false;
-            LevelText.enabled = false;
-        }
+        var data = GameData.Instance.savedata;
+        isActive = data.IsActive[buttonLevel - 1];
+        earnedStars = data.Stars[buttonLevel - 1];
+
+        SetupSprite();
+        SetupStars();
+        levelText.text = buttonLevel.ToString();
     }
-    protected virtual void ActiveStar()
+
+    private void SetupSprite()
     {
-        int count = Mathf.Min(StarsActive, Stars.Length);
-        for (int i = 0; i < count; i++)
-        {
-            Stars[i].gameObject.SetActive(true);
-        }
+        img.sprite = isActive ? activeSprite : lockSprite;
+        btn.enabled = isActive;
+        levelText.enabled = isActive;
     }
-    protected virtual void ShowLv()
+
+    private void SetupStars()
     {
-        LevelText.text = "" + ButtonLevel;
+        if (starIcons == null) return;
+
+        foreach (var s in starIcons) s.gameObject.SetActive(false);   // tắt hết
+        for (int i = 0; i < Mathf.Min(earnedStars, starIcons.Length); i++)
+            starIcons[i].gameObject.SetActive(true);                 // bật lại đúng số
     }
-    protected virtual void LoadConfirmPanel()
-    {
-        if (this.ConfirmPanel != null) return;
-        this.ConfirmPanel = Transform.FindAnyObjectByType<ConfirmPanel>();
-        Debug.Log(transform.name + " :LoadConfirmPanel", gameObject);
-    }
-    public virtual void ShowConfirmPanel()
-    {
-        ConfirmPanel.Level = ButtonLevel;
-        ConfirmPanel.gameObject.SetActive(true);
-    }
-    
 }
 

@@ -42,6 +42,11 @@ public class ConfirmPanel : NghiaMono
                 HighScore = gameData.savedata.HighScores[Level - 1];
         }
     }
+    public void Show(int level)
+    {
+        this.Level = level;
+        gameObject.SetActive(true);
+    }
     protected virtual void SetText()
     {
         HighScoreText.text = "" + HighScore;

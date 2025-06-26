@@ -14,6 +14,8 @@ public class GemBoardCtr : NghiaMono
 
     [SerializeField] protected DeadLockChecker deadLockChecker;
     public DeadLockChecker DeadLockChecker => deadLockChecker;
+    [SerializeField] protected HintSystem hintSystem;
+    public HintSystem HintSystem => hintSystem;
 
     [SerializeField] protected GameManagerCtr gameManagerCtr;
     public GameManagerCtr GameManagerCtr => gameManagerCtr;
@@ -27,6 +29,7 @@ public class GemBoardCtr : NghiaMono
         this.LoadGemSwaper();
         this.LoadDeadLockChecker();
       this.LoadGameManagerCtr();
+        this.LoadhintSystem();
     }
 
     protected virtual void LoadGemboard()
@@ -54,6 +57,12 @@ public class GemBoardCtr : NghiaMono
         if (this.deadLockChecker != null) return;
         this.deadLockChecker = GetComponentInChildren<DeadLockChecker>();
         Debug.Log(transform.name + " :LoadDeadLockChecker", gameObject);
+    }
+    protected virtual void LoadhintSystem()
+    {
+        if (this.hintSystem != null) return;
+        this.hintSystem = GetComponentInChildren<HintSystem>();
+        Debug.Log(transform.name + " :LoadhintSystem", gameObject);
     }
     protected virtual void LoadGameManagerCtr()
     {

@@ -94,14 +94,19 @@ public class DeadLockChecker : NghiaMono
         return n.Gem.GetComponent<GemCtr>().GemType == type;
     }
 
-    private bool HasMatchAt(int x, int y, bool spawnTest = false)
+    public bool HasMatchAt(int x, int y, bool spawnTest = false)
     {
         if (!InRange(x, y)) return false;
 
         Node center = gemboardCtr.Gemboard.gemBoardNode[x, y];
+        if (center == null || center.Gem == null) return false;
         if (!AllowDeadLockCheck(center, spawnTest)) return false;
 
-        GemType t = center.Gem.GetComponent<GemCtr>().GemType;
+        GemCtr gemCtr = center.Gem.GetComponent<GemCtr>();
+        if (gemCtr == null) return false;          // Gem không có script? → bỏ
+
+        GemType t = gemCtr.GemType;
+
 
         // ---- Horizontal ----
         int count = 1;

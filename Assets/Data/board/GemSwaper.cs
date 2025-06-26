@@ -132,6 +132,7 @@ public class GemSwaper : NghiaMono
         // Move to correct destination (dựa trên vị trí được tính trước)
         _currentGem.GemMove.MoveToTarget(targetPos);
         _targetGem.GemMove.MoveToTarget(currentPos);
+        gemboardCtr.GameManagerCtr.SoundManager.PlayMoveNoise();
     }
 
 
@@ -146,6 +147,7 @@ public class GemSwaper : NghiaMono
         {
             Swap(_currentGem, _targetGem);
             isProccessingMove = false;
+            gemboardCtr.HintSystem.OnNoMatchFound();
         }
         
         SelectedGem = null;

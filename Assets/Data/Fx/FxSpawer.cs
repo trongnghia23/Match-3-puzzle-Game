@@ -6,6 +6,7 @@ public class FxSpawer : spawner
     public static FxSpawer Instance { get => instance; }
     public static string Smokeone = "Smoke_1";
     public static string Chose = "Chose";
+    public static string Hint = "Hint";
     protected override void Awake()
     {
         base.Awake();
